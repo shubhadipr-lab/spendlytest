@@ -1,11 +1,18 @@
 import re
 import sqlite3
+from datetime import datetime
 from functools import wraps
 
 from flask import Flask, render_template, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from database.db import get_db, init_db, seed_db, create_user, get_user_by_email
+from database.queries import (
+    get_user_by_id,
+    get_summary_stats,
+    get_recent_transactions,
+    get_category_breakdown,
+)
 
 app = Flask(__name__)
 
@@ -123,34 +130,42 @@ def logout():
 @app.route("/profile")
 @login_required
 def profile():
+    db_user = get_user_by_id(session["user_id"])
+    name_parts = db_user["name"].split()
+    initials = "".join(p[0] for p in name_parts[:2]).upper()
     user = {
-        "name": "Ananya Sharma",
-        "email": "ananya.sharma@example.com",
-        "initials": "AS",
-        "member_since": "March 2026",
+        "name": db_user["name"],
+        "email": db_user["email"],
+        "initials": initials,
+        "member_since": db_user["member_since"],
     }
 
+    stats = get_summary_stats(session["user_id"])
     summary = {
-        "total_spent": "₹18,650.00",
-        "transaction_count": 24,
-        "top_category": "Food",
+        "total_spent": f"₹{stats['total_spent']:,.2f}",
+        "transaction_count": stats["transaction_count"],
+        "top_category": stats["top_category"],
     }
 
+    raw_transactions = get_recent_transactions(session["user_id"])
     transactions = [
-        {"date": "09 Jul 2026", "description": "Grocery run — BigBasket", "category": "Food", "amount": "₹1,240.00"},
-        {"date": "07 Jul 2026", "description": "Uber to office", "category": "Transport", "amount": "₹320.00"},
-        {"date": "05 Jul 2026", "description": "Electricity bill", "category": "Bills", "amount": "₹2,150.00"},
-        {"date": "02 Jul 2026", "description": "Pharmacy — vitamins", "category": "Health", "amount": "₹560.00"},
-        {"date": "28 Jun 2026", "description": "Movie night", "category": "Entertainment", "amount": "₹450.00"},
-        {"date": "24 Jun 2026", "description": "New running shoes", "category": "Shopping", "amount": "₹3,299.00"},
+        {
+            "date": datetime.strptime(t["date"], "%Y-%m-%d").strftime("%d %b %Y"),
+            "description": t["description"],
+            "category": t["category"],
+            "amount": f"₹{t['amount']:,.2f}",
+        }
+        for t in raw_transactions
     ]
 
+    raw_categories = get_category_breakdown(session["user_id"])
     categories = [
-        {"category": "Food", "amount": "₹6,450.00", "percent": 35},
-        {"category": "Bills", "amount": "₹4,300.00", "percent": 23},
-        {"category": "Shopping", "amount": "₹3,299.00", "percent": 18},
-        {"category": "Transport", "amount": "₹2,900.00", "percent": 16},
-        {"category": "Health", "amount": "₹1,701.00", "percent": 8},
+        {
+            "category": c["name"],
+            "amount": f"₹{c['amount']:,.2f}",
+            "percent": c["pct"],
+        }
+        for c in raw_categories
     ]
 
     return render_template(
