@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics — Spendly{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="analytics-page">
+    <div class="analytics-container">
+        <div class="analytics-card">
+            <div class="analytics-icon"><i data-lucide="bar-chart-3"></i></div>
+            <h1 class="analytics-title">Analytics is coming soon</h1>
+            <p class="analytics-subtitle">
+                We're building powerful insights to help you understand your spending
+                habits, spot trends, and make smarter financial decisions. Check back soon.
+            </p>
+            <a href="{{ url_for('profile') }}" class="btn-primary">Back to profile</a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

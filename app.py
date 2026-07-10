@@ -187,6 +187,12 @@ def privacy():
     return render_template("privacy.html")
 
 
+@app.route("/analytics")
+@login_required
+def analytics():
+    return render_template("analytics.html")
+
+
 # ------------------------------------------------------------------ #
 # Placeholder routes — students will implement these                  #
 # ------------------------------------------------------------------ #
