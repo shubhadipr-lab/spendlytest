@@ -78,6 +78,94 @@
     flex-shrink: 0;
 }
 
+/* Filter bar ------------------------------------------------------------ */
+
+.filter-bar {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.filter-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.filter-preset-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--paper);
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.filter-preset-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.filter-preset-btn.active {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-color: var(--accent-light);
+}
+
+.filter-custom-range {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-date-input {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: var(--ink);
+    background: var(--paper);
+}
+
+.filter-date-input:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+.filter-range-sep {
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+}
+
+.filter-apply-btn {
+    padding: 0.4rem 1rem;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.filter-apply-btn:hover {
+    background: var(--accent);
+}
+
 /* Stats row ------------------------------------------------------------ */
 
 .stats-row {
@@ -320,5 +408,14 @@
 
     .profile-meta-row {
         justify-content: center;
+    }
+
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-custom-range {
+        flex-wrap: wrap;
     }
 }
