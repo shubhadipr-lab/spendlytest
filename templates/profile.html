@@ -22,6 +22,25 @@
             </div>
         </div>
 
+        <div class="filter-bar">
+            <div class="filter-presets">
+                {% for preset in presets %}
+                <a href="{{ url_for('profile', date_from=preset.date_from, date_to=preset.date_to) }}"
+                   class="filter-preset-btn{% if preset.active %} active{% endif %}">
+                    {{ preset.label }}
+                </a>
+                {% endfor %}
+            </div>
+            <form method="GET" action="{{ url_for('profile') }}" class="filter-custom-range">
+                <input type="date" name="date_from" class="filter-date-input"
+                       value="{{ active_date_from or '' }}" aria-label="Start date">
+                <span class="filter-range-sep">to</span>
+                <input type="date" name="date_to" class="filter-date-input"
+                       value="{{ active_date_to or '' }}" aria-label="End date">
+                <button type="submit" class="filter-apply-btn">Apply</button>
+            </form>
+        </div>
+
         <div class="stats-row">
             <div class="stat-card">
                 <div class="stat-icon"><i data-lucide="wallet"></i></div>

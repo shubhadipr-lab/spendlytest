@@ -1,9 +1,10 @@
+import calendar
 import re
 import sqlite3
-from datetime import datetime
+from datetime import date, datetime
 from functools import wraps
 
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from database.db import get_db, init_db, seed_db, create_user, get_user_by_email
@@ -30,6 +31,75 @@ def login_required(view):
             return redirect(url_for("login"))
         return view(*args, **kwargs)
     return wrapped_view
+
+
+def _parse_iso_date(value):
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+
+def _subtract_months(d, months):
+    """
+    Same day-of-month `months` earlier than `d`, clamped to the shorter
+    month's last day when `d.day` doesn't exist there (e.g. Mar 31 minus
+    1 month -> Feb 28/29, not an overflow into March).
+    """
+    total = d.month - 1 - months
+    year = d.year + total // 12
+    month = total % 12 + 1
+    day = min(d.day, calendar.monthrange(year, month)[1])
+    return date(year, month, day)
+
+
+def _resolve_date_filter(args):
+    """
+    Reads date_from/date_to from the given query args and returns them as
+    ISO strings, or (None, None) if absent, malformed, or reversed. A
+    reversed range (date_from > date_to) also flashes a user-facing error.
+    """
+    parsed_from = _parse_iso_date(args.get("date_from"))
+    parsed_to = _parse_iso_date(args.get("date_to"))
+
+    if parsed_from and parsed_to:
+        if parsed_from > parsed_to:
+            flash("Start date must be before end date.", "error")
+        else:
+            return parsed_from.isoformat(), parsed_to.isoformat()
+
+    return None, None
+
+
+def _build_presets(today):
+    """Quick-select date ranges shown on the profile filter bar."""
+    last_day = calendar.monthrange(today.year, today.month)[1]
+    month_start = today.replace(day=1)
+    month_end = today.replace(day=last_day)
+    return [
+        {
+            "label": "This Month",
+            "date_from": month_start.isoformat(),
+            "date_to": month_end.isoformat(),
+        },
+        {
+            "label": "Last 3 Months",
+            "date_from": _subtract_months(today, 3).isoformat(),
+            "date_to": today.isoformat(),
+        },
+        {
+            "label": "Last 6 Months",
+            "date_from": _subtract_months(today, 6).isoformat(),
+            "date_to": today.isoformat(),
+        },
+        {
+            "label": "All Time",
+            "date_from": None,
+            "date_to": None,
+        },
+    ]
 
 with app.app_context():
     init_db()
@@ -140,14 +210,18 @@ def profile():
         "member_since": db_user["member_since"],
     }
 
-    stats = get_summary_stats(session["user_id"])
+    date_from_str, date_to_str = _resolve_date_filter(request.args)
+
+    stats = get_summary_stats(session["user_id"], date_from_str, date_to_str)
     summary = {
         "total_spent": f"₹{stats['total_spent']:,.2f}",
         "transaction_count": stats["transaction_count"],
         "top_category": stats["top_category"],
     }
 
-    raw_transactions = get_recent_transactions(session["user_id"])
+    raw_transactions = get_recent_transactions(
+        session["user_id"], date_from=date_from_str, date_to=date_to_str
+    )
     transactions = [
         {
             "date": datetime.strptime(t["date"], "%Y-%m-%d").strftime("%d %b %Y"),
@@ -158,7 +232,9 @@ def profile():
         for t in raw_transactions
     ]
 
-    raw_categories = get_category_breakdown(session["user_id"])
+    raw_categories = get_category_breakdown(
+        session["user_id"], date_from=date_from_str, date_to=date_to_str
+    )
     categories = [
         {
             "category": c["name"],
@@ -168,10 +244,18 @@ def profile():
         for c in raw_categories
     ]
 
+    presets = _build_presets(date.today())
+    for preset in presets:
+        preset["active"] = (
+            preset["date_from"] == date_from_str and preset["date_to"] == date_to_str
+        )
+
     return render_template(
         "profile.html",
         user=user, summary=summary,
         transactions=transactions, categories=categories,
+        presets=presets,
+        active_date_from=date_from_str, active_date_to=date_to_str,
     )
 
 
