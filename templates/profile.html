@@ -20,6 +20,9 @@
                     <span class="meta-item"><i data-lucide="calendar"></i>Member since {{ user.member_since }}</span>
                 </div>
             </div>
+            <a href="{{ url_for('add_expense') }}" class="btn-primary profile-hero-action">
+                <i data-lucide="plus"></i>Add expense
+            </a>
         </div>
 
         <div class="filter-bar">

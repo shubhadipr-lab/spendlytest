@@ -36,6 +36,23 @@
     padding: 1.75rem 2rem;
 }
 
+.profile-hero-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-hero-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}
+
+.profile-hero-action i {
+    width: 16px;
+    height: 16px;
+}
+
 .profile-avatar {
     width: 64px;
     height: 64px;
