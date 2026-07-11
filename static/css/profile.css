@@ -312,6 +312,27 @@
     font-variant-numeric: tabular-nums;
 }
 
+.actions-cell {
+    text-align: right;
+}
+
+.row-action-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-muted);
+    transition: color 0.2s;
+}
+
+.row-action-link:hover {
+    color: var(--accent);
+}
+
+.row-action-link i {
+    width: 16px;
+    height: 16px;
+}
+
 /* Category badges ----------------------------------------------------- */
 
 .badge {

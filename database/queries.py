@@ -76,7 +76,7 @@ def get_summary_stats(user_id, date_from=None, date_to=None):
 def get_recent_transactions(user_id, limit=10, date_from=None, date_to=None):
     """
     OWNER: Subagent 1 (Transactions).
-    Returns a list of {"date": "YYYY-MM-DD", "description": str,
+    Returns a list of {"id": int, "date": "YYYY-MM-DD", "description": str,
     "category": str, "amount": float}, most-recent-first. [] if none.
     Dates stay in raw ISO form here; app.py reformats for display.
     """
@@ -84,13 +84,14 @@ def get_recent_transactions(user_id, limit=10, date_from=None, date_to=None):
     try:
         clause, date_params = _date_range_filter(date_from, date_to)
         rows = conn.execute(
-            "SELECT date, description, category, amount "
+            "SELECT id, date, description, category, amount "
             + "FROM expenses WHERE user_id = ?" + clause
             + " ORDER BY date DESC, id DESC LIMIT ?",
             (user_id, *date_params, limit),
         ).fetchall()
         return [
             {
+                "id": r["id"],
                 "date": r["date"],
                 "description": r["description"],
                 "category": r["category"],
