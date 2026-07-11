@@ -314,9 +314,16 @@
 
 .actions-cell {
     text-align: right;
+    white-space: nowrap;
 }
 
-.row-action-link {
+.actions-cell form {
+    display: inline-flex;
+    margin-left: 0.5rem;
+}
+
+.row-action-link,
+.row-action-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -328,7 +335,20 @@
     color: var(--accent);
 }
 
-.row-action-link i {
+.row-action-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+}
+
+.row-action-btn:hover {
+    color: var(--danger);
+}
+
+.row-action-link i,
+.row-action-btn i {
     width: 16px;
     height: 16px;
 }
