@@ -80,6 +80,32 @@ def create_expense(user_id, amount, category, expense_date, description):
         conn.close()
 
 
+def get_expense_by_id(expense_id):
+    conn = get_db()
+    try:
+        return conn.execute(
+            "SELECT * FROM expenses WHERE id = ?", (expense_id,)
+        ).fetchone()
+    finally:
+        conn.close()
+
+
+def update_expense(expense_id, amount, category, expense_date, description):
+    conn = get_db()
+    try:
+        conn.execute(
+            """
+            UPDATE expenses
+            SET amount = ?, category = ?, date = ?, description = ?
+            WHERE id = ?
+            """,
+            (amount, category, expense_date, description, expense_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def get_user_by_email(email):
     conn = get_db()
     try:

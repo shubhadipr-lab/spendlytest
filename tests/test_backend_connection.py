@@ -50,7 +50,7 @@ def test_get_recent_transactions_demo_user(demo_user):
     result = get_recent_transactions(demo_user["id"])
     assert len(result) == 8
     for tx in result:
-        assert set(tx.keys()) == {"date", "description", "category", "amount"}
+        assert set(tx.keys()) == {"id", "date", "description", "category", "amount"}
         assert isinstance(tx["amount"], (int, float))
         assert not isinstance(tx["amount"], str)
 
