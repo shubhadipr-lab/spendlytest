@@ -5,10 +5,13 @@ import sqlite3
 from datetime import date, datetime
 from functools import wraps
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from database.db import get_db, init_db, seed_db, create_user, get_user_by_email, create_expense, CATEGORIES
+from database.db import (
+    get_db, init_db, seed_db, create_user, get_user_by_email, create_expense,
+    get_expense_by_id, update_expense, CATEGORIES,
+)
 from database.queries import (
     get_user_by_id,
     get_summary_stats,
@@ -231,6 +234,7 @@ def profile():
     )
     transactions = [
         {
+            "id": t["id"],
             "date": datetime.strptime(t["date"], "%Y-%m-%d").strftime("%d %b %Y"),
             "description": t["description"],
             "category": t["category"],
@@ -305,9 +309,70 @@ def add_expense():
     return redirect(url_for("profile"))
 
 
-@app.route("/expenses/<int:id>/edit")
+def _render_edit_expense_form(expense_id, values, error=None):
+    return render_template(
+        "edit_expense.html",
+        expense_id=expense_id,
+        expense=values,
+        categories=CATEGORIES,
+        error=error,
+    )
+
+
+@app.route("/expenses/<int:id>/edit", methods=["GET", "POST"])
+@login_required
 def edit_expense(id):
-    return "Edit expense — coming in Step 8"
+    expense = get_expense_by_id(id)
+    if expense is None or expense["user_id"] != session["user_id"]:
+        abort(404)
+
+    if request.method == "GET":
+        values = {
+            "amount": expense["amount"],
+            "category": expense["category"],
+            "date": expense["date"],
+            "description": expense["description"] or "",
+        }
+        return _render_edit_expense_form(id, values)
+
+    amount_raw = request.form.get("amount", "").strip()
+    category = request.form.get("category", "").strip()
+    date_raw = request.form.get("date", "").strip()
+    description = request.form.get("description", "").strip()[:500]
+
+    submitted_values = {
+        "amount": amount_raw,
+        "category": category,
+        "date": date_raw,
+        "description": description,
+    }
+
+    try:
+        amount = float(amount_raw)
+        if not math.isfinite(amount) or amount <= 0:
+            raise ValueError
+    except ValueError:
+        return _render_edit_expense_form(
+            id, submitted_values,
+            error="Please enter a valid amount greater than zero.",
+        )
+
+    if category not in CATEGORIES:
+        return _render_edit_expense_form(
+            id, submitted_values,
+            error="Please select a valid category.",
+        )
+
+    try:
+        datetime.strptime(date_raw, "%Y-%m-%d")
+    except ValueError:
+        return _render_edit_expense_form(
+            id, submitted_values,
+            error="Please enter a valid date.",
+        )
+
+    update_expense(id, amount, category, date_raw, description)
+    return redirect(url_for("profile"))
 
 
 @app.route("/expenses/<int:id>/delete")
