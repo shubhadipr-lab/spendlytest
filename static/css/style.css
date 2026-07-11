@@ -12,6 +12,7 @@
     --paper-card: #ffffff;
     --accent: #1a472a;
     --accent-light: #e8f0eb;
+    --accent-border: #bfd8c9;
     --accent-2: #c17f24;
     --accent-2-light: #fdf3e3;
     --danger: #c0392b;
@@ -155,6 +156,12 @@ a { color: inherit; text-decoration: none; }
     background: var(--danger-light);
     color: var(--danger);
     border: 1px solid var(--danger-border);
+}
+
+.flash-success {
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
 }
 
 /* ------------------------------------------------------------------ */
