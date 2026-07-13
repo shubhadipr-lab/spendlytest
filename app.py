@@ -26,6 +26,7 @@ app = Flask(__name__)
 app.secret_key = "dev-only-secret-key-change-before-deploy"
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+PASSWORD_RE = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$")
 
 
 def login_required(view):
@@ -138,8 +139,12 @@ def register():
     if not EMAIL_RE.match(email):
         return render_template("register.html", error="Please enter a valid email address.")
 
-    if len(password) < 8:
-        return render_template("register.html", error="Password must be at least 8 characters.")
+    if not PASSWORD_RE.match(password):
+        return render_template(
+            "register.html",
+            error="Password must be at least 8 characters and include an uppercase letter, "
+            "a lowercase letter, a number, and a special character.",
+        )
 
     if get_user_by_email(email) is not None:
         return render_template("register.html", error="An account with this email already exists.")

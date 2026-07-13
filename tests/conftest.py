@@ -15,7 +15,7 @@ def temp_db(monkeypatch, tmp_path):
 @pytest.fixture
 def demo_user(temp_db):
     db.seed_db()
-    row = db.get_user_by_email("demo@spendly.com")
+    row = db.get_user_by_email("demo@mykhata.com")
     return dict(row)
 
 

@@ -18,7 +18,7 @@ def test_get_user_by_id_demo_user(demo_user):
     result = get_user_by_id(demo_user["id"])
     assert result is not None
     assert result["name"] == "Demo User"
-    assert result["email"] == "demo@spendly.com"
+    assert result["email"] == "demo@mykhata.com"
     assert result["member_since"] == datetime.now().strftime("%B %Y")
 
 
@@ -104,7 +104,7 @@ def test_profile_demo_user(client, demo_user):
     assert "₹219.89" in body
     assert "Bills" in body
     assert "Demo User" in body
-    assert "demo@spendly.com" in body
+    assert "demo@mykhata.com" in body
     assert "Ananya Sharma" not in body
     assert "₹18,650" not in body
 

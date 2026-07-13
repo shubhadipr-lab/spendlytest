@@ -2,7 +2,7 @@
 
 ## Project overview
 
-Spendly is a lightweight personal expense tracker built with Flask and SQLite.
+MY KHATA is a lightweight personal expense tracker built with Flask and SQLite.
 
 ---
 

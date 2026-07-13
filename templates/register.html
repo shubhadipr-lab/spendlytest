@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Create account — Spendly{% endblock %}
+{% block title %}Create account — MY KHATA{% endblock %}
 
 {% block content %}
 
@@ -34,7 +34,8 @@
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password"
                            class="form-input" placeholder="Min. 8 characters"
-                           required>
+                           minlength="8" required>
+                    <p class="form-hint">Must be 8+ characters and include an uppercase letter, a lowercase letter, a number, and a special character.</p>
                 </div>
                 <button type="submit" class="btn-submit">Create account</button>
             </form>
